@@ -26,7 +26,7 @@ class TodoList(APIView, TodoJson):
         #     }
         # )
         # todo: solution 3
-        objs = TodoSerializer(data=todos, many=True)
+        objs = TodoSerializer(todos, many=True)
         return JsonResponse({"data": objs.data})
 
     def post(self, request):
@@ -39,6 +39,7 @@ class TodoList(APIView, TodoJson):
         return JsonResponse(data=todo.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
+        Todo.objects.all().delete()
         return JsonResponse({"message": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
 
 
