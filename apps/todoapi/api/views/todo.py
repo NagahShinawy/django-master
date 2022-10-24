@@ -1,5 +1,7 @@
 from django.http import JsonResponse
+from rest_framework import status
 from rest_framework.views import APIView
+from ..serializers import TodoSerializer
 
 
 class TodoList(APIView):
@@ -10,6 +12,13 @@ class TodoList(APIView):
             "is_completed": True,
 
         }]})
+
+    def post(self, request):
+        todo = TodoSerializer(data=request.data)
+        # print(repr(serializer))
+        if not todo.is_valid():
+            return JsonResponse(data=todo.errors, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(data={"todo": todo.data})
 
 
 class SingleTodo(APIView):
