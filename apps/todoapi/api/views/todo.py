@@ -18,6 +18,8 @@ class TodoList(APIView):
         # print(repr(serializer))
         if not todo.is_valid():
             return JsonResponse(data=todo.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        todo.save()
         return JsonResponse(data={"todo": todo.data})
 
 
