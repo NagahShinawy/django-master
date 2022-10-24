@@ -2,16 +2,16 @@ from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.views import APIView
 from ..serializers import TodoSerializer
+from ..models import Todo
+from ..mixins import TodoJson
 
 
-class TodoList(APIView):
+class TodoList(APIView, TodoJson):
 
     def get(self, request):
-        return JsonResponse({"data": [{
-            "title": "study and work hard",
-            "is_completed": True,
-
-        }]})
+        todos = Todo.objects.all()
+        data = [self.to_json(todo) for todo in todos]
+        return JsonResponse({"data": data})
 
     def post(self, request):
         todo = TodoSerializer(data=request.data)
