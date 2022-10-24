@@ -33,7 +33,9 @@ class TodoList(APIView, TodoJson):
         todo = TodoSerializer(data=request.data)
         # print(repr(serializer))
         if todo.is_valid():
-            todo.save()
+            item = todo.save()
+            item.is_completed = True
+            item.save()
             return JsonResponse(data={"todo": todo.data})
 
         return JsonResponse(data=todo.errors, status=status.HTTP_400_BAD_REQUEST)
