@@ -8,6 +8,3 @@ urlpatterns = [
     path("todolist/", TodoList.as_view(), name="todo-list"),
     path("todos/<int:todo_id>/", SingleTodo.as_view(), name="single-todo"),
 ]
-
-
-

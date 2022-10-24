@@ -10,4 +10,3 @@ class Todo(models.Model):
 
     def __str__(self):
         return f"{self.__class__.__name__}(title={self.title[:self.TRIM_TITLE_LEN]}, is_completed={self.is_completed})"
-
