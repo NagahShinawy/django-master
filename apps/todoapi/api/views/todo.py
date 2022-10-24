@@ -3,6 +3,7 @@ import json
 from django.core import serializers
 from django.http import JsonResponse
 from rest_framework import status
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from ..serializers import TodoSerializer
 from ..models import Todo
@@ -27,7 +28,7 @@ class TodoList(APIView, TodoJson):
         # )
         # todo: solution 3
         objs = TodoSerializer(todos, many=True)
-        return JsonResponse({"data": objs.data})
+        return JsonResponse(objs.data, safe=False)
 
     def post(self, request):
         todo = TodoSerializer(data=request.data)
@@ -35,6 +36,8 @@ class TodoList(APIView, TodoJson):
         if todo.is_valid():
             item = todo.save()
             item.is_completed = True
+            # request=request: more meta data about request --> /api/1 to https://host/api/v1
+            item.url = reverse("todo:single-todo", kwargs={"todo_id": item.pk}, request=request)
             item.save()
             return JsonResponse(data={"todo": todo.data})
 
@@ -47,6 +50,7 @@ class TodoList(APIView, TodoJson):
 
 class SingleTodo(APIView):
     def get(self, request, todo_id):
-        return JsonResponse(
-            {"todo": {"id": todo_id, "title": "back end", "is_completed": False}}
-        )
+        todo = Todo.objects.filter(pk=todo_id)
+        if todo:
+            return JsonResponse(TodoSerializer(todo.first()).data)
+        return JsonResponse({"message": f"obj with id <{todo_id}> not found"})

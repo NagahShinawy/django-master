@@ -5,7 +5,7 @@ class Todo(models.Model):
     TRIM_TITLE_LEN = 50
     title = models.CharField(max_length=100)
     is_completed = models.BooleanField(default=False)
-    url = models.URLField()
+    url = models.URLField(null=True)
     order = models.IntegerField()
 
     def __str__(self):
