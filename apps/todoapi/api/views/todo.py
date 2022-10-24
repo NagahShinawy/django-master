@@ -3,11 +3,12 @@ import json
 from django.core import serializers
 from django.http import JsonResponse
 from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from ..serializers import TodoSerializer
 from ..models import Todo
-from ..mixins import TodoJson
+from ..mixins import TodoJson, NotFoundObj
 
 
 class TodoList(APIView, TodoJson):
@@ -52,5 +53,5 @@ class SingleTodo(APIView):
     def get(self, request, todo_id):
         todo = Todo.objects.filter(pk=todo_id)
         if todo:
-            return JsonResponse(TodoSerializer(todo.first()).data)
-        return JsonResponse({"message": f"obj with id <{todo_id}> not found"})
+            return Response(TodoSerializer(todo.first()).data)
+        return Response({"message": NotFoundObj.MESSAGE.format(id=todo_id)})
