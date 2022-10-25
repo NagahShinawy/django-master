@@ -29,7 +29,7 @@ class TodoList(APIView, TodoJson):
         # )
         # todo: solution 3
         objs = TodoSerializer(todos, many=True)
-        return JsonResponse(objs.data, safe=False)
+        return JsonResponse(objs.data, safe=False, status=status.HTTP_200_OK)
 
     def post(self, request):
         todo = TodoSerializer(data=request.data)
@@ -38,9 +38,11 @@ class TodoList(APIView, TodoJson):
             item = todo.save()
             item.is_completed = True
             # request=request: more meta data about request --> /api/1 to https://host/api/v1
-            item.url = reverse("todo:single-todo", kwargs={"todo_id": item.pk}, request=request)
+            item.url = reverse(
+                "todo:single-todo", kwargs={"todo_id": item.pk}, request=request
+            )
             item.save()
-            return JsonResponse(data={"todo": todo.data})
+            return JsonResponse(data={"todo": todo.data}, status=status.HTTP_201_CREATED)
 
         return JsonResponse(data=todo.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -50,8 +52,45 @@ class TodoList(APIView, TodoJson):
 
 
 class SingleTodo(APIView):
-    def get(self, request, todo_id):
+    @staticmethod
+    def is_exist(todo_id):
         todo = Todo.objects.filter(pk=todo_id)
-        if todo:
-            return Response(TodoSerializer(todo.first()).data)
-        return Response({"message": NotFoundObj.MESSAGE.format(id=todo_id)})
+        return todo.first() if todo else None
+
+    def get(self, request, todo_id):
+        todo = self.is_exist(todo_id)
+        if todo is not None:
+            return JsonResponse(TodoSerializer(todo).data, status=status.HTTP_200_OK)
+        return Response(
+            {"message": NotFoundObj.MESSAGE.format(id=todo_id)},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    def patch(self, request, todo_id):
+        task = self.is_exist(todo_id)
+        # title = request.data.get("title")
+        # if task is not None and title:
+        #     task.title = title
+        #     task.save()
+        if task is None:
+            return Response(
+                {"message": NotFoundObj.MESSAGE.format(id=todo_id)},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = TodoSerializer(data=request.data, instance=task, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, todo_id):
+        task = self.is_exist(todo_id)
+        if task is not None:
+            task.delete()
+            return Response("", status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": NotFoundObj.MESSAGE.format(id=todo_id)},
+            status=status.HTTP_404_NOT_FOUND,
+        )
