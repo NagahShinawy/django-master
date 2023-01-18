@@ -1,5 +1,5 @@
 import json
-
+import logging
 from django.core import serializers
 from django.http import JsonResponse
 from rest_framework import status
@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from ..serializers import TodoSerializer
 from ..models import Todo
 from ..mixins import TodoJson, NotFoundObj
+
+logger = logging.getLogger(__name__)
 
 
 class TodoList(APIView, TodoJson):
@@ -29,6 +31,7 @@ class TodoList(APIView, TodoJson):
         # )
         # todo: solution 3
         objs = TodoSerializer(todos, many=True)
+        logger.info(f"todos <{todos.count()}> {objs.data}")
         return JsonResponse(objs.data, safe=False, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -42,8 +45,9 @@ class TodoList(APIView, TodoJson):
                 "todo:single-todo", kwargs={"todo_id": item.pk}, request=request
             )
             item.save()
-            return JsonResponse(data={"todo": todo.data}, status=status.HTTP_201_CREATED)
-
+            return JsonResponse(
+                data={"todo": todo.data}, status=status.HTTP_201_CREATED
+            )
         return JsonResponse(data=todo.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
@@ -82,8 +86,7 @@ class SingleTodo(APIView):
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data)
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        return JsonResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, todo_id):
         task = self.is_exist(todo_id)
