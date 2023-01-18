@@ -29,12 +29,3 @@ class ColorSerializer(serializers.ModelSerializer):
             "rgb",
             "_hexa",
         ]
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Color
-        fields = [
-            "id",
-            "username",
-        ]
