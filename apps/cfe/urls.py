@@ -32,5 +32,7 @@ urlpatterns = [
     path("api/v1/products/list-create/<int:pk>/", ProductMixinView.as_view(), name="list-create"),
     path(
         "api/v1/products/add-list/", ProductListCreateAPIView.as_view(), name="add-list"
-    )
+    ),path(
+        "api/v1/products/list/", ProductListAPIView.as_view(), name="list"
+    ),
 ]
