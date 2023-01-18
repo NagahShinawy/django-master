@@ -38,3 +38,13 @@ class UserSerializer(serializers.ModelSerializer):
             "id",
             "username",
         ]
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Color
+        fields = [
+            "id",
+            "username",
+            "gender"
+        ]
