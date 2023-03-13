@@ -74,17 +74,13 @@ class ProductListCreateAPIView(generics.ListCreateAPIView, UpdateProductMixin):
     queryset = Product.objects.all().order_by("-id")
     serializer_class = ProductSerializer
     authentication_classes = [authentication.SessionAuthentication]
-    permission_classes = [OnlyAccessColor]
-    # permission_classes = [
-    #     permissions.DjangoModelPermissions
-    # ]  # allow user to access specific model with custom actions
 
     def perform_create(self, serializer):
         self.update_save(self.request, serializer)
 
-    # def get_queryset(self):
-    #     Product.objects.exclude(user__id=self.request.user.id).delete()
-    #     return super().get_queryset()
+    def get_queryset(self):
+        Product.objects.exclude(user__id=self.request.user.id).delete()
+        return super().get_queryset()
 
 
 class ProductUpdateAPIView(generics.UpdateAPIView):
